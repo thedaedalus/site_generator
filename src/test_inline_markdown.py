@@ -4,7 +4,7 @@ from inline_markdown import extract_markdown_images, extract_markdown_links, spl
 from textnode import TextNode, TextType
 
 
-class TestMarkdown(unittest.TestCase):
+class TestInlineMarkdown(unittest.TestCase):
     def test_text_no_delimiter(self):
         node = TextNode("This is plain text", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
