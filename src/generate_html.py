@@ -71,6 +71,7 @@ def generate_page(from_path, template_path, dest_path):
             template_html = template_file
     except Exception as e:
         raise RuntimeError(f"ERROR: Failed to load {template_file}: {e} file might be corrupted")
+
     for i in range(len(markdown_files)):
         if html_content.get(markdown_files[i]) is None:
             title = extract_title(markdown_files[i])
@@ -81,8 +82,8 @@ def generate_page(from_path, template_path, dest_path):
         html_content[markdown_files[i]["html"]] = html_node.to_html()
 
     for file, content in html_content.items():
-        output_html = re.sub(r"{{ Title }}", content["title"], template_file)
-        output_html = re.sub(r"{{ Content }}", content["html"], template_file)
+        output_html = re.sub(r"{{ Title }}", content["title"], template_html)
+        output_html = re.sub(r"{{ Content }}", content["html"], template_html)
         html_output.append(output_html)
 
     if not Path(dest_path).is_dir:
