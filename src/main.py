@@ -1,21 +1,18 @@
 import os
 from pathlib import Path
 
-from generate_html import copy_recursive, extract_title, list_files
+from copystatic import copy_recursive
+from generate_html import extract_title, generate_page, list_files
 
 
 def main():
-    # dest_path = "public"
-    # src_path = "static"
-    # copy_recursive(src_path, dest_path)
+    dest_path = "public"
+    src_path = "static"
+    copy_recursive(src_path, dest_path)
+    from_path = Path("content")
+    template_path = Path("template.html")
 
-    path = "content"
-    files = list_files(path)
-    for file in files:
-        if ".md" in file:
-            print(file)
-
-    # print(list_files()
+    generate_page(from_path, template_path, dest_path)
 
 
 if __name__ == "__main__":

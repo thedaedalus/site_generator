@@ -123,7 +123,7 @@ This is the same paragraph on a new line
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div><blockquote>This is a block quote\nThis another block quote\nand another</blockquote></div>",
+            "<div><blockquote>This is a block quote This another block quote and another</blockquote></div>",
         )
 
     def test_ulist(self):

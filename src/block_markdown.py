@@ -2,6 +2,7 @@ import re
 import textwrap
 from enum import Enum
 
+import htmlnode
 import inline_markdown as im
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import TextNode, TextType, text_node_to_html_node
@@ -17,12 +18,11 @@ class BlockType(Enum):
 
 
 def text_to_children(text):
-    children = []
-    child = []
     text_nodes = im.text_to_textnodes(text)
+    children = []
     for node in text_nodes:
-        child.append(text_node_to_html_node(node))
-    children.extend(child)
+        html_node = text_node_to_html_node(node)
+        children.append(html_node)
     return children
 
 
@@ -50,23 +50,33 @@ def block_heading_type(heading):
         raise ValueError("This is not a heading block")
 
 
-def code_block(code):
-    code_elements = code.split("```")
-    if len(code_elements) % 2 == 0:
-        raise ValueError(f"Code block has not been closed correctly {code}")
-    text_node = TextNode(code_elements[1].lstrip("\n"), TextType.CODE)
-    code_node = ParentNode("pre", [text_node_to_html_node(text_node)])
-    return code_node
+def paragraph_to_html_node(block):
+    lines = block.split("\n")
+    paragraph = " ".join(lines)
+    children = text_to_children(paragraph)
+    return ParentNode("p", children)
+
+
+def code_block(block):
+    if not block.startswith("```") or not block.endswith("```"):
+        raise ValueError("invalid code block")
+    text = block[4:-3]
+    raw_text_node = TextNode(text, TextType.TEXT)
+    child = text_node_to_html_node(raw_text_node)
+    code = ParentNode("code", [child])
+    return ParentNode("pre", [code])
 
 
 def quote_block(quote):
-    quote_elements = quote.strip().split("> ")
+    quote_elements = quote.split("\n")
     quote_list = []
     for quote in quote_elements:
-        if quote == "":
-            continue
-        quote_list.extend(text_to_children(quote))
-    block_quote = ParentNode("blockquote", quote_list)
+        if not quote.startswith(">"):
+            raise ValueError("invalid quote block")
+        quote_list.append(quote.lstrip(">").strip())
+    content = " ".join(quote_list)
+    children = text_to_children(content)
+    block_quote = ParentNode("blockquote", children)
     return block_quote
 
 
@@ -107,8 +117,7 @@ def markdown_to_html_node(markdown):
             case BlockType.HEADING:
                 parent = block_heading_type(block)
             case BlockType.PARAGRAPH:
-                block = re.sub(r"\n", " ", block)
-                parent = ParentNode("p", children=text_to_children(block))
+                parent = paragraph_to_html_node(block)
             case BlockType.CODE:
                 parent = code_block(block)
             case BlockType.QUOTE:
