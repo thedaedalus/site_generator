@@ -26,7 +26,7 @@ def list_files(*path):
     return file_list
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(basepath, from_path, template_path, dest_path):
     print(f"* {from_path} {template_path} -> {dest_path}")
     with open(from_path, mode="r", encoding="utf-8") as markdown_file:
         markdown_content = markdown_file.read()
@@ -41,6 +41,8 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown_content)
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html)
+    template = template.replace('href="/', f'href="{basepath}')
+    template = template.replace('src="/', f'src="{basepath}')
 
     dest_dir = os.path.dirname(dest_path)
     if dest_dir != "":
@@ -49,10 +51,10 @@ def generate_page(from_path, template_path, dest_path):
         to_file.write(template)
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(basepath, dir_path_content, template_path, dest_dir_path):
     dest_file = ""
     source_files = list_files(dir_path_content)
     for file in source_files:
         dest_file = file.replace("content", dest_dir_path)
         dest_file = dest_file.replace("md", "html")
-        generate_page(file, template_path, dest_file)
+        generate_page(basepath, file, template_path, dest_file)
